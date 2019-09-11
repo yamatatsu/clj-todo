@@ -1,3 +1,10 @@
+(defn render [type tasks]
+  (case type
+    "List" tasks
+    "Add" ["Input your new task:"]
+    "Done" (conj tasks "Select done task:")
+    "Exit" ["Bye"]))
+
 (defn choice-next []
   (println "What? (list:'l', add:'a', done:'d', exie: 'e')")
   (case (read-line)
@@ -7,23 +14,13 @@
     "e" "Exit"
     ))
 
-(defn add []
-  (print "Input your new task:")
-  (read-line))
+(defn recurse [tasks]
+  (let [type (choice-next)]
+    (doseq [word (render type tasks)] (println word))
+    (case type
+      "List" (recurse tasks)
+      "Add" (recurse (conj tasks (read-line)))
+      "Done" (recurse (disj tasks (read-line)))
+      "Exit")))
 
-(defn recursive [word state]
-  (println word)
-  (let [input (read-line)]
-    (case (get state "type")
-      "ChoiceNext" (recursive { "type" (choice-next) })
-      "List" (recursive {
-        "type" "ChoiceNext"
-        "tasks" (get state "tasks")})
-      "Add" (recursive {
-        "type" "ChoiceNext"
-        "tasks" [(add)]})
-      "Done" (println "done")
-      "Exit" (println "exit"))))
-
-
-(recursive "This is clj-todo!" false {"type" "ChoiceNext"})
+(recurse #{})
